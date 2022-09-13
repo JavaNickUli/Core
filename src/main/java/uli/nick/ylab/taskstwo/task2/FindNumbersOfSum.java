@@ -1,7 +1,8 @@
 package uli.nick.ylab.taskstwo.task2;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Task2: [3, 4, 2, 7], 10 -> [3, 7] - вывести пару менно в скобках, которые дают сумму - 10.
@@ -19,15 +20,15 @@ public class FindNumbersOfSum {
         if (nums == null) {
             return new int[2];
         }
-        
-        for (int i = 0; i < nums.length - 1; i++) {
-            for (int j = i + 1; j < nums.length; j++) {
-                if (nums[i] + nums[j] == sum) {
-                    return new int[]{nums[i], nums[j]};
-                }
+
+        Set<Integer> set = new HashSet<>();
+
+        for (int num : nums) {
+            if (set.contains(sum - num)) {
+                return new int[]{(sum - num), num};
             }
+            set.add(num);
         }
-        
         return new int[2];
     }
 
@@ -35,19 +36,15 @@ public class FindNumbersOfSum {
         if (nums == null || nums.length < 2) {
             return new int[2];
         }
-        
-        AtomicInteger index = new AtomicInteger(0);
+
+        Set<Integer> set = new HashSet<>();
 
         return Arrays.stream(nums)
-                .peek(first -> index.getAndIncrement())
-                .filter(first -> Arrays.stream(nums)
-                        .skip(index.get())
-                        .filter(second -> second + first == sum)
-                        .findFirst()
-                        .isPresent())
                 .boxed()
+                .filter(first -> set.contains(sum - first) &
+                        (set.add(first) || first == sum - first))
                 .findFirst()
-                .map(first -> new int[]{first, sum - first})
+                .map(first -> new int[]{sum - first, first})
                 .orElse(new int[2]);
     }
 }
